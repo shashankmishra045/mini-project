@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="cart.css" />
+</head>
+
+<body>
+    <section id="cart-page">
+        <div class="cart-container container">
+            <h2>Your Cart</h2>
+            <p id="empty-cart-message" style="display: none; text-align: center; font-size: 20px; color: #777;">
+                Your cart is empty.
+            </p>
+            <table id="cart-table" style="display: table;">
+                <thead>
+                    <tr>
+                        <th>Food Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="cart-body">
+                </tbody>
+            </table>
+            <div class="cart-summary">
+                <p>Total Price: ₹<span id="total-price">0</span></p>
+                <a href="#checkout" class="btn btn-primary">Proceed to Checkout</a>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+       
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+      
+        function updateCart() {
+            const cartBody = document.getElementById('cart-body');
+            const totalPrice = document.getElementById('total-price');
+            const cartTable = document.getElementById('cart-table');
+            const emptyCartMessage = document.getElementById('empty-cart-message');
+            cartBody.innerHTML = '';
+            let total = 0;
+
+            if (cart.length === 0) {
+              
+                emptyCartMessage.style.display = 'block';
+                cartTable.style.display = 'none';
+                totalPrice.textContent = 0;
+                return;
+            } else {
+              
+                emptyCartMessage.style.display = 'none';
+                cartTable.style.display = 'table';
+            }
+
+            cart.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="cart-item">
+                        <img src="https://tse1.mm.bing.net/th?id=OIP.EbLjZ3WlHWIVsE0laoDUCAHaHa&pid=Api&P=0&h=220" alt="${item.name}" />
+                        <span>${item.name}</span>
+                    </td>
+                    <td>
+                        <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                    </td>
+                    <td>₹${item.price}</td>
+                    <td>₹${item.price * item.quantity}</td>
+                `;
+                cartBody.appendChild(row);
+                total += item.price * item.quantity;
+            });
+
+            totalPrice.textContent = total;
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+     
+        function updateQuantity(index, change) {
+            const item = cart[index];
+            item.quantity += change;
+
+          
+            if (item.quantity < 1) {
+                cart.splice(index, 1);
+            }
+
+            updateCart();
+        }
+
+        updateCart();
+    </script>
+</body>
+
+</html>
